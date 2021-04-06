@@ -17,28 +17,83 @@ Há diversas tecnologias de cache para utilizarmos nas aplicações Java, como: 
 Neste exemplo será configurado uma aplicação Spring Boot para utilizar o Redis como provedor de cache distribuído, assim a aplicação possui seu banco de dados, exemplificado na tecnologia do H2 e utiliza o Redis como provedor cache, dessa forma, o gerenciamento do cache não fica dentro da aplicação e sim no Redis, possibilitando que outras aplicações reaproveitem a mesma fonte de cache, caracterizando o cache como distribuído. 
 
 ## Redis
-o Redis, que é uma solução open source para armazenamento de estrutura de dados em memória, o qual pode ser utilizada como banco de dados, cache ou message broker. Ele é uma boa solução para realizar cache distribuídos em aplicações Java, além de apresentar uma fácil integração através das dependências do spring-data e spring-data-redis utilizando a abstração de cache do Spring Boot. 
+O Redis é uma solução open source para armazenamento de estrutura de dados em memória, o qual pode ser utilizada como banco de dados, cache ou message broker. Ele é uma boa solução para realizar cache distribuídos em aplicações Java, além de apresentar uma fácil integração através das dependências do spring-data e spring-data-redis utilizando a abstração de cache do Spring Boot. 
 
 ## Sequência Construção
 
 - Utilizado como base para este projeto o star.spring.io, somente com a dependencia do Spring Web, as demais serão acrescentadas manualmente
 
-- Adicionado dependencia do Spring Cache
-```<dependency> 
-    <groupId>org.springframework.boot</groupId> 
-    <artifactId>spring-boot-starter-cache</artifactId> 
-    </dependency>
- ```   
- 
+- Adicionado no POM a dependencia do Spring Cache
+   ```
+   <dependency> 
+     <groupId>org.springframework.boot</groupId> 
+     <artifactId>spring-boot-starter-cache</artifactId> 
+   </dependency>
+  
  - Adiciona @EnableCache
- ```
- @SpringBootApplication
-@EnableCaching
-public class AprendendoCacheApplication {
+    ```
+    @SpringBootApplication
+    @EnableCaching
+    public class AprendendoCacheApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AprendendoCacheApplication.class, args);
-	}
-}
-```
+	    public static void main(String[] args) {
+		    SpringApplication.run(AprendendoCacheApplication.class, args);
+	    }
+    }
+   ```
 - Adiciona @Cacheable 
+  Neste exemplo o @Cacheable foi utilizado em um controller 
+  ```
+  @RestController
+  public class HelloController {
+
+    @GetMapping("/hello")
+    @Cacheable("helloCacheVar")
+    public String hello(){
+        System.out.println("Sem cache");
+        return "Hello World";
+    }
+
+Com esta configuração o cache já esta funcionando. O Spring utiliza um ConcurrentHashMap por debaixo dos panos para colocar na memoria RAM. 
+A abstração de cache do Spring suporta uma ampla gama de bibliotecas de cache e é totalmente compatível com JSR-107 (JCache).
+
+- Adiciona o @CacheEvict 
+```
+    @GetMapping("/cancel")
+    @CacheEvict("helloCacheVar")
+    public String cancel(){
+        System.out.println("Limpando o cache");
+        return "Cache Cancelado";
+    }
+```
+- Adicionar o Redis no POM
+```
+    <dependency> 
+        <groupId>org.springframework.boot</groupId> 
+        <artifactId>spring-boot-starter-data-redis</artifactId> 
+    </dependency> 
+```
+- Configura o Redis no application.properties
+    ```
+    spring.cache.type=redis 
+    spring.redis.host=localhost 
+    spring.redis.port=6379 
+- Roda um docker do Redis
+```
+docker run -it --name redis -p 6379:6379 redis:5.0.3 
+
+
+
+    ```
+    @Service
+    public class StudentService {
+
+        @Autowired
+        private StudentRepository studentRepository;
+
+        @Cacheable(cacheNames = "students")
+        public List<Student> findAll(){
+            System.out.println("Students sem cache");
+        return studentRepository.findAll();
+        }
+
