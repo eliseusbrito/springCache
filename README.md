@@ -26,7 +26,7 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
 
 ## Sequência de Desenvolvimento deste Exemplo
 
-- Utilizado como base para este projeto o [start.spring.io](start.spring.io), somente com a dependencia do Spring Web, as demais serão acrescentadas manualmente.
+- Utilizado como base para este projeto o [start.spring.io](https://start.spring.io), somente com a dependencia do Spring Web, Maven e Java 11. As demais dependências foram acrescentadas manualmente.
 
 - Adicionado no POM a dependencia do Spring Cache
    ```
@@ -61,7 +61,6 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
     ```
     Nesta primeira parte do exemplo, o @Cacheable foi utilizado em um controller.<br>
     Com esta configuração o cache já esta funcionando. O Spring utiliza um ConcurrentHashMap por debaixo dos panos para colocar na memoria RAM. A abstração de cache do Spring suporta uma ampla gama de bibliotecas de cache e é totalmente compatível com JSR-107 (JCache).
-<br>
 
 - Adicionado o @CacheEvict para limpar o cache
 
@@ -120,36 +119,39 @@ Na segunda parte deste exemplo foi adicionado uma pequena API de exemplo e os co
         @Autowired
         private StudentRepository studentRepository;
 
-        @Cacheable(cacheNames = "students")
-        public List<Student> findAll(){
-            System.out.println("Students sem cache");
+        @Cacheable(value = "students")
+        public List<Student> findAll() {
+            System.out.println("Find All Students");
             return studentRepository.findAll();
         }
 
-        @Cacheable(cacheNames = "students")
-        public Optional<Student> findById(Integer id){
-            System.out.println("Students sem cache by Id");
+        @Cacheable(value = "students")
+        public Optional<Student> findById(Integer id) {
+            System.out.println("Find By Id Students");
             return studentRepository.findById(id);
         }
 
-
-        @CachePut(cacheNames = "students", key="#id")
+        @CacheEvict(value = "students", allEntries = true)
         public Student update(Integer id, Student obj) {
             Student entity = studentRepository.getOne(id);
             entity.setNome(obj.getNome());
             entity.setIdade(obj.getIdade());
+            System.out.println("Put update Student");
             return studentRepository.save(entity);
         }
 
-        @CacheEvict(value="students", allEntries=true)
+        @CacheEvict(value = "students", allEntries = true)
         public void delete(Integer id) {
+            System.out.println("Delete Student");
             studentRepository.deleteById(id);
         }
 
-        @CacheEvict(value="students", allEntries=true)
+        @CacheEvict(value = "students", allEntries = true)
         public Student incluir(Student alunoInformado) {
-        return studentRepository.save(alunoInformado);
+            System.out.println("Post incluir Student");
+            return studentRepository.save(alunoInformado);
         }
+
 }
    ```
 Para simular uma aplicação com cache distribuido, pode-se fazer uma cópia deste projeto e alterar a porta padrão no **application.properties**. Ao subir as duas aplicações, será possível verificar que ambas compartilharão o redis e terão acesso a um cache comum com o mesmo comportamento em ambas.
