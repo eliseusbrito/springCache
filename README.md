@@ -1,12 +1,17 @@
 # Spring Cache
-Aplicação para estudo do Spring Cache
+Este repositório foi criado com o objetivo de estudar a utilização e comportamento de uma aplicação exemplo com o Spring Cache.
+
 ## O que é o armazenamento em cache? 
 
 Na área de computação, um cache é uma camada de armazenamento físico de dados de alta velocidade que guarda um subconjunto de dados, geralmente temporário por natureza, para que futuras solicitações referentes a esses dados sejam atendidas de modo mais rápido do que é possível fazer ao acessar o local de armazenamento principal de dados. O armazenamento em cache permite reutilizar com eficiência dados recuperados ou computados anteriormente. 
  
 ## Como funciona o armazenamento em cache? 
 
-Os dados em um cache geralmente são armazenados no hardware de acesso rápido, como uma Random-access memory (RAM – Memória de acesso aleatório), e também podem ser usados em paralelo com um componente de software. O principal objetivo de um cache é aumentar a performance da recuperação de dados ao reduzir a necessidade de acessar a camada subjacente mais lenta de armazenamento. 
+Os dados em um cache geralmente são armazenados no hardware de acesso rápido, como uma Random-access memory (RAM – Memória de acesso aleatório), e também podem ser usados em paralelo com um componente de software. 
+
+## Para que serve o cache?
+
+O principal objetivo de um cache é **aumentar a performance da recuperação de dados** ao reduzir a necessidade de acessar a camada subjacente mais lenta de armazenamento. 
 A substituição de capacidade por velocidade geralmente faz com que um cache armazene um subconjunto de dados de modo temporário, em comparação com bancos de dados, cujos dados são, de modo geral, completos e duráveis. <br>
 Cache é uma das abordagens para otimizar acesso à dados dos sistemas, onde evitamos requisições repetitivas nas fontes originais dos dados, que geralmente são grandes estruturas, complexas e nem sempre performáticas, assim com cache, passamos a consultar locais mais otimizados, que provêm acessos rápidos através de chaves. 
 
@@ -19,7 +24,7 @@ Neste exemplo será configurado uma aplicação Spring Boot para utilizar o Redi
 ## Redis
 O Redis é uma solução open source para armazenamento de estrutura de dados em memória, o qual pode ser utilizada como banco de dados, cache ou message broker. Ele é uma boa solução para realizar cache distribuídos em aplicações Java, além de apresentar uma fácil integração através das dependências do spring-data e spring-data-redis utilizando a abstração de cache do Spring Boot. 
 
-## Sequência Desenvolvimento deste Exemplo
+## Sequência de Desenvolvimento deste Exemplo
 
 - Utilizado como base para este projeto o star.spring.io, somente com a dependencia do Spring Web, as demais serão acrescentadas manualmente.
 </br>
@@ -41,7 +46,7 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
 	    }
     }
    ```
-- Adicionado a anotation @Cacheable para gravar os dados no cache
+- Adicionado a anotation @Cacheable para gravar os dados no cache.<br>
   Nesta primeira parte do exemplo, o @Cacheable foi utilizado em um controller:
   ```
   @RestController
@@ -54,55 +59,57 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
         return "Hello World";
     }
     ```
-    Com esta configuração o cache já esta funcionando. O Spring utiliza um ConcurrentHashMap por debaixo dos panos para colocar na memoria RAM. 
-A abstração de cache do Spring suporta uma ampla gama de bibliotecas de cache e é totalmente compatível com JSR-107 (JCache).
+    Com esta configuração o cache já esta funcionando. O Spring utiliza um ConcurrentHashMap por debaixo dos panos para colocar na memoria RAM. A abstração de cache do Spring suporta uma ampla gama de bibliotecas de cache e é totalmente compatível com JSR-107 (JCache).
 <br>
+
 - Adicionado o @CacheEvict para limpar o cache
-    ```
+
+```
     @GetMapping("/cancel")
     @CacheEvict("helloCacheVar")
     public String cancel(){
         System.out.println("Limpando o cache");
         return "Cache Cancelado";
     }
-    ```
+```
 - Adicionar o Redis no POM
-    ```
+```
     <dependency> 
         <groupId>org.springframework.boot</groupId> 
         <artifactId>spring-boot-starter-data-redis</artifactId> 
     </dependency> 
-    ```
+```
 - Configura o Redis no application.properties
-    ```
+```
     spring.cache.type=redis 
     spring.redis.host=localhost 
     spring.redis.port=6379 
+```    
 - Roda um docker do Redis
-    ```
+```
     docker run -it --name redis -p 6379:6379 redis:5.0.3
-    ```
+```
 - Para saber quais docker esta rodando 
-    ```
+```
     docker ps
-    ```
+```
 - Para entrar no redis
-    ```
+```
     docker exec -it redis /bin/bash
     redis-cli
-    ```
+```
 - Para mostrar o que tem dentro
-    ```
+```
     KEYS *
-    ```
+```
 - Para ver o conteúdo da Key
-    ```
+```
     get "hello::SimpleKey []"
-    ```
+```
 - Para apagar a Key
-    ```
+```
     del "hello::SimpleKey []"
-    ```
+```
 Na segunda parte deste exemplo foi adicionado uma pequena API de exemplo e os comandos relativo ao cache foram colocados na Service:
 
 ```
