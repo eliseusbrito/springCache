@@ -26,15 +26,15 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
 
 ## Sequência de Desenvolvimento deste Exemplo
 
-- Utilizado como base para este projeto o star.spring.io, somente com a dependencia do Spring Web, as demais serão acrescentadas manualmente.
-</br>
+- Utilizado como base para este projeto o [start.spring.io](start.spring.io), somente com a dependencia do Spring Web, as demais serão acrescentadas manualmente.
+
 - Adicionado no POM a dependencia do Spring Cache
    ```
    <dependency> 
      <groupId>org.springframework.boot</groupId> 
      <artifactId>spring-boot-starter-cache</artifactId> 
    </dependency>
-  
+   ```  
  - Adicionado a anotação @EnableCache
     ```
     @SpringBootApplication
@@ -45,9 +45,9 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
 		    SpringApplication.run(AprendendoCacheApplication.class, args);
 	    }
     }
-   ```
+    ```
 - Adicionado a anotation @Cacheable para gravar os dados no cache.<br>
-  Nesta primeira parte do exemplo, o @Cacheable foi utilizado em um controller:
+  
   ```
   @RestController
   public class HelloController {
@@ -59,60 +59,61 @@ O Redis é uma solução open source para armazenamento de estrutura de dados em
         return "Hello World";
     }
     ```
+    Nesta primeira parte do exemplo, o @Cacheable foi utilizado em um controller.<br>
     Com esta configuração o cache já esta funcionando. O Spring utiliza um ConcurrentHashMap por debaixo dos panos para colocar na memoria RAM. A abstração de cache do Spring suporta uma ampla gama de bibliotecas de cache e é totalmente compatível com JSR-107 (JCache).
 <br>
 
 - Adicionado o @CacheEvict para limpar o cache
 
-```
+   ```
     @GetMapping("/cancel")
     @CacheEvict("helloCacheVar")
     public String cancel(){
         System.out.println("Limpando o cache");
         return "Cache Cancelado";
     }
-```
+   ```
 - Adicionar o Redis no POM
-```
+   ```
     <dependency> 
         <groupId>org.springframework.boot</groupId> 
         <artifactId>spring-boot-starter-data-redis</artifactId> 
     </dependency> 
-```
+   ```
 - Configura o Redis no application.properties
-```
+   ```
     spring.cache.type=redis 
     spring.redis.host=localhost 
-    spring.redis.port=6379 
-```    
+    spring.redis.port=6379  
+   ```    
 - Roda um docker do Redis
-```
+   ```
     docker run -it --name redis -p 6379:6379 redis:5.0.3
-```
+   ```
 - Para saber quais docker esta rodando 
-```
+   ```
     docker ps
-```
+   ```
 - Para entrar no redis
-```
+   ```
     docker exec -it redis /bin/bash
     redis-cli
-```
+   ```
 - Para mostrar o que tem dentro
-```
+   ```
     KEYS *
-```
+   ```
 - Para ver o conteúdo da Key
-```
+   ```
     get "hello::SimpleKey []"
-```
+   ```
 - Para apagar a Key
-```
+   ```
     del "hello::SimpleKey []"
-```
+   ```
 Na segunda parte deste exemplo foi adicionado uma pequena API de exemplo e os comandos relativo ao cache foram colocados na Service:
 
-```
+   ```
     @Service
     public class StudentService {
 
@@ -150,11 +151,11 @@ Na segunda parte deste exemplo foi adicionado uma pequena API de exemplo e os co
         return studentRepository.save(alunoInformado);
         }
 }
-```
+   ```
 Para simular uma aplicação com cache distribuido, pode-se fazer uma cópia deste projeto e alterar a porta padrão no **application.properties**. Ao subir as duas aplicações, será possível verificar que ambas compartilharão o redis e terão acesso a um cache comum com o mesmo comportamento em ambas.
-```
+   ```
 server.port: 8061
-```
+   ```
 </br>
 Referências:
 </br>
